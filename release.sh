@@ -71,6 +71,15 @@ install -dm 755 %{buildroot}/usr/share/fonts/maplemono-nf
 install -Dm 644 maplemono-nf/maplemono-nf-regular.ttf \
     %{buildroot}/usr/share/fonts/maplemono-nf/maplemono-nf-regular.ttf
 
+install -Dm 644 zshrc             %{buildroot}/etc/skel/.zshrc
+install -Dm 644 bashrc            %{buildroot}/etc/skel/.bashrc
+install -Dm 644 konsolerc         %{buildroot}/etc/skel/.config/konsolerc
+install -Dm 644 BlossomOS.profile %{buildroot}/etc/skel/.local/share/konsole/BlossomOS.profile
+install -Dm 644 fastfetch/config.jsonc       %{buildroot}/etc/skel/.config/fastfetch/config.jsonc
+install -Dm 644 fastfetch/config-ascii.jsonc %{buildroot}/etc/skel/.config/fastfetch/config-ascii.jsonc
+install -Dm 644 fastfetch/blossom.txt        %{buildroot}/etc/skel/.config/fastfetch/blossom.txt
+install -Dm 644 fastfetch/blossom.png        %{buildroot}/etc/skel/.config/fastfetch/blossom.png
+
 %post
 REAL_USER="\${SUDO_USER:-\$USER}"
 USER_HOME=\$(getent passwd "\$REAL_USER" | cut -d: -f6)
@@ -91,26 +100,16 @@ CUSTOM="\$USER_HOME/.oh-my-zsh/custom"
 mkdir -p "\$CUSTOM/plugins"
 ln -sfn /usr/share/zsh/plugins/zsh-autosuggestions "\$CUSTOM/plugins/zsh-autosuggestions"
 
-# user configs
-mkdir -p "\$USER_HOME/.config" "\$USER_HOME/.local/share/konsole" "\$USER_HOME/.config/fastfetch"
-cp /usr/share/blossomos/shellconfig/zshrc               "\$USER_HOME/.zshrc"
-cp /usr/share/blossomos/shellconfig/bashrc              "\$USER_HOME/.bashrc"
-cp /usr/share/blossomos/shellconfig/konsolerc           "\$USER_HOME/.config/konsolerc"
-cp /usr/share/blossomos/shellconfig/BlossomOS.profile   "\$USER_HOME/.local/share/konsole/BlossomOS.profile"
-cp /usr/share/blossomos/shellconfig/fastfetch/config.jsonc       "\$USER_HOME/.config/fastfetch/config.jsonc"
-cp /usr/share/blossomos/shellconfig/fastfetch/config-ascii.jsonc "\$USER_HOME/.config/fastfetch/config-ascii.jsonc"
-cp /usr/share/blossomos/shellconfig/fastfetch/blossom.txt        "\$USER_HOME/.config/fastfetch/blossom.txt"
-cp /usr/share/blossomos/shellconfig/fastfetch/blossom.png        "\$USER_HOME/.config/fastfetch/blossom.png"
-chown -R "\$REAL_USER:" "\$USER_HOME/.config/fastfetch" \
-    "\$USER_HOME/.zshrc" "\$USER_HOME/.bashrc" \
-    "\$USER_HOME/.config/konsolerc" \
-    "\$USER_HOME/.local/share/konsole/BlossomOS.profile"
-
 %files
 /usr/share/blossomos/shellconfig/
 /usr/share/zsh/plugins/zsh-autosuggestions/
 /usr/share/fonts/maplemono-nf/
 /etc/sudoers.d/blossomos
+/etc/skel/.zshrc
+/etc/skel/.bashrc
+/etc/skel/.config/konsolerc
+/etc/skel/.local/share/konsole/BlossomOS.profile
+/etc/skel/.config/fastfetch/
 
 %changelog
 * $(LC_TIME=C date "+%a %b %d %Y") packager - $VERSION-$RELEASE
