@@ -46,6 +46,9 @@ Requires:       fastfetch
 Requires:       konsole
 Requires:       python3-pip
 Requires:       blossomui
+Requires:       git
+Requires:       curl
+Requires:       atuin
 
 %description
 Shell configuration, zsh plugins, Konsole profile and color scheme for BlossomOS.
@@ -86,9 +89,41 @@ USER_HOME=\$(getent passwd "\$REAL_USER" | cut -d: -f6)
 
 fc-cache -f 2>/dev/null || true
 
+# Deploy skel files to the installing user's home (in addition to /etc/skel for new users)
+if [ -n "\$REAL_USER" ] && [ "\$REAL_USER" != "root" ] && [ -d "\$USER_HOME" ]; then
+    install -dm 755 -o "\$REAL_USER" -g "\$REAL_USER" \\
+        "\$USER_HOME/.config" \\
+        "\$USER_HOME/.config/fastfetch" \\
+        "\$USER_HOME/.local/share/konsole"
+    for rel in .zshrc .bashrc .config/konsolerc \\
+               .local/share/konsole/BlossomOS.profile \\
+               .config/fastfetch/config.jsonc \\
+               .config/fastfetch/config-ascii.jsonc \\
+               .config/fastfetch/blossom.txt \\
+               .config/fastfetch/blossom.png; do
+        src="/etc/skel/\$rel"
+        dst="\$USER_HOME/\$rel"
+        if [ -f "\$src" ]; then
+            install -Dm 644 -o "\$REAL_USER" -g "\$REAL_USER" "\$src" "\$dst"
+        fi
+    done
+fi
+
 # oh-my-zsh
-if [ ! -d "\$USER_HOME/.oh-my-zsh" ]; then
-    sudo -u "\$REAL_USER" env RUNZSH=no CHSH=no sh -c "\$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" 2>/dev/null || true
+OMZ_REPO=https://github.com/ohmyzsh/ohmyzsh.git
+
+if [ ! -f /etc/skel/.oh-my-zsh/oh-my-zsh.sh ]; then
+    rm -rf /etc/skel/.oh-my-zsh
+    git clone --depth=1 "\$OMZ_REPO" /etc/skel/.oh-my-zsh || \\
+        echo "WARNING: oh-my-zsh clone into /etc/skel failed"
+fi
+
+if [ -n "\$REAL_USER" ] && [ "\$REAL_USER" != "root" ] && \\
+   [ ! -f "\$USER_HOME/.oh-my-zsh/oh-my-zsh.sh" ]; then
+    rm -rf "\$USER_HOME/.oh-my-zsh"
+    sudo -u "\$REAL_USER" -H git clone --depth=1 \\
+        "\$OMZ_REPO" "\$USER_HOME/.oh-my-zsh" || \\
+        echo "WARNING: oh-my-zsh clone for \$REAL_USER failed"
 fi
 
 # virtualenvwrapper
@@ -96,9 +131,16 @@ sudo -u "\$REAL_USER" pip install --user virtualenvwrapper 2>/dev/null || \
 sudo -u "\$REAL_USER" pip3 install --user virtualenvwrapper 2>/dev/null || true
 
 # zsh-autosuggestions symlink
-CUSTOM="\$USER_HOME/.oh-my-zsh/custom"
-mkdir -p "\$CUSTOM/plugins"
-ln -sfn /usr/share/zsh/plugins/zsh-autosuggestions "\$CUSTOM/plugins/zsh-autosuggestions"
+if [ -d /etc/skel/.oh-my-zsh ]; then
+    mkdir -p /etc/skel/.oh-my-zsh/custom/plugins
+    ln -sfn /usr/share/zsh/plugins/zsh-autosuggestions \\
+        /etc/skel/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+fi
+if [ -n "\$REAL_USER" ] && [ "\$REAL_USER" != "root" ] && [ -d "\$USER_HOME/.oh-my-zsh" ]; then
+    CUSTOM="\$USER_HOME/.oh-my-zsh/custom"
+    sudo -u "\$REAL_USER" -H mkdir -p "\$CUSTOM/plugins"
+    sudo -u "\$REAL_USER" -H ln -sfn /usr/share/zsh/plugins/zsh-autosuggestions "\$CUSTOM/plugins/zsh-autosuggestions"
+fi
 
 %files
 /usr/share/blossomos/shellconfig/
