@@ -1,0 +1,15 @@
+{
+  "unlock_title": "rpm-ostree ${_sub} is blocked on BlossomOS",
+  "unlock_body": "The sytem may wont't recieve updates in the unlocked state.\nThe deployment state cant be managed cleanly by OSTree.",
+  "usroverlay_body": "rpm-ostree usroverlay creates a temporary writable overlay on /usr.\nIt reverts automatically on reboot and does not affect updates.\nProceed with caution.",
+  "alternatives": "Use one of these alternatives instead:",
+  "cancel": "Cancel",
+  "opt_usroverlay": "rpm-ostree usroverlay - temporary /usr overlay, reverts on reboot",
+  "opt_distrobox": "distrobox - run any Linux distro as a container",
+  "opt_pkglayer": "pkglayer - apt/yay/dnf/nix/emerge package manager that feel native via Distrobox",
+  "opt_ephemeral": "ephemeral container - disposable one-off Distrobox",
+  "opt_flatpak": "flatpak - install desktop apps safely",
+  "opt_brew": "brew (Homebrew) - Install CLI packages very easily and stable.",
+  "terminal_warning": "Don't blindly run terminal commands from online guides!\nThey can permanently damage your system.",
+  "terminal_disable": "Disable: touch ~/.config/no-terminal-warning"
+}

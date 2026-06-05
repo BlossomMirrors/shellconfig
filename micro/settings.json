@@ -1,0 +1,6 @@
+{
+  "statusformatl": " $(filename) $(modified)$(overwrite)($(line),$(col)) | ft:$(opt:filetype) | $(opt:fileformat) | $(opt:encoding)",
+  "statusformatr": "$(hints.hints)  $(line),$(col) ",
+  "colorscheme": "simple",
+  "tabsize": 4
+}

@@ -1,0 +1,6 @@
+{
+  "Ctrl-c": "Quit",
+  "Ctrl-q": "None",
+  "Ctrl-g": "ToggleHelp",
+  "Alt-g": "lua:hints.ShowHints"
+}

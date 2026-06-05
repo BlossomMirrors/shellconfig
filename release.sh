@@ -48,7 +48,6 @@ Requires:       python3-pip
 Requires:       blossomui
 Requires:       git
 Requires:       curl
-Requires:       atuin
 
 %description
 Shell configuration, zsh plugins, Konsole profile and color scheme for BlossomOS.
@@ -74,6 +73,14 @@ install -dm 755 %{buildroot}/usr/share/fonts/maplemono-nf
 install -Dm 644 maplemono-nf/maplemono-nf-regular.ttf \
     %{buildroot}/usr/share/fonts/maplemono-nf/maplemono-nf-regular.ttf
 
+install -Dm 644 blossomos-guards.zsh  %{buildroot}/etc/blossomos/guards.zsh
+install -Dm 644 guards/en.json        %{buildroot}/etc/blossomos/guards/en.json
+install -Dm 644 guards/de.json        %{buildroot}/etc/blossomos/guards/de.json
+install -Dm 644 micro/bindings.json  %{buildroot}/etc/skel/.config/micro/bindings.json
+install -Dm 644 micro/settings.json  %{buildroot}/etc/skel/.config/micro/settings.json
+install -Dm 644 micro/plug/hints/hints.lua %{buildroot}/etc/skel/.config/micro/plug/hints/hints.lua
+install -Dm 644 micro/plug/hints/en.json  %{buildroot}/etc/skel/.config/micro/plug/hints/en.json
+install -Dm 644 micro/plug/hints/de.json  %{buildroot}/etc/skel/.config/micro/plug/hints/de.json
 install -Dm 644 zshrc             %{buildroot}/etc/skel/.zshrc
 install -Dm 644 bashrc            %{buildroot}/etc/skel/.bashrc
 install -Dm 644 konsolerc         %{buildroot}/etc/skel/.config/konsolerc
@@ -94,13 +101,20 @@ if [ -n "\$REAL_USER" ] && [ "\$REAL_USER" != "root" ] && [ -d "\$USER_HOME" ]; 
     install -dm 755 -o "\$REAL_USER" -g "\$REAL_USER" \\
         "\$USER_HOME/.config" \\
         "\$USER_HOME/.config/fastfetch" \\
+        "\$USER_HOME/.config/micro" \\
+        "\$USER_HOME/.config/micro/plug/hints" \\
         "\$USER_HOME/.local/share/konsole"
     for rel in .zshrc .bashrc .config/konsolerc \\
                .local/share/konsole/BlossomOS.profile \\
                .config/fastfetch/config.jsonc \\
                .config/fastfetch/config-ascii.jsonc \\
                .config/fastfetch/blossom.txt \\
-               .config/fastfetch/blossom.png; do
+               .config/fastfetch/blossom.png \\
+               .config/micro/bindings.json \
+               .config/micro/settings.json \
+               .config/micro/plug/hints/hints.lua \
+               .config/micro/plug/hints/en.json \
+               .config/micro/plug/hints/de.json; do
         src="/etc/skel/\$rel"
         dst="\$USER_HOME/\$rel"
         if [ -f "\$src" ]; then
@@ -127,8 +141,36 @@ if [ -n "\$REAL_USER" ] && [ "\$REAL_USER" != "root" ] && \\
 fi
 
 # virtualenvwrapper
-sudo -u "\$REAL_USER" pip install --user virtualenvwrapper 2>/dev/null || \
-sudo -u "\$REAL_USER" pip3 install --user virtualenvwrapper 2>/dev/null || true
+pip3 install virtualenvwrapper 2>/dev/null || \
+    pip3 install --break-system-packages virtualenvwrapper 2>/dev/null || true
+
+# default shell
+if grep -q '^SHELL=' /etc/default/useradd 2>/dev/null; then
+    sed -i 's|^SHELL=.*|SHELL=/bin/zsh|' /etc/default/useradd
+else
+    echo 'SHELL=/bin/zsh' >> /etc/default/useradd
+fi
+if [ -n "\$REAL_USER" ] && [ "\$REAL_USER" != "root" ]; then
+    chsh -s /bin/zsh "\$REAL_USER" || true
+fi
+
+# default editor
+if grep -q '^EDITOR=' /etc/environment 2>/dev/null; then
+    sed -i 's|^EDITOR=.*|EDITOR=micro|' /etc/environment
+else
+    echo 'EDITOR=micro' >> /etc/environment
+fi
+if grep -q '^VISUAL=' /etc/environment 2>/dev/null; then
+    sed -i 's|^VISUAL=.*|VISUAL=micro|' /etc/environment
+else
+    echo 'VISUAL=micro' >> /etc/environment
+fi
+alternatives --install /usr/bin/editor editor /usr/bin/micro 100 2>/dev/null || true
+
+# rpm-ostree guard
+if [ -f /etc/zshrc ] && ! grep -qF 'blossomos/guards.zsh' /etc/zshrc; then
+    printf '\n[[ -f /etc/blossomos/guards.zsh ]] && source /etc/blossomos/guards.zsh\n' >> /etc/zshrc
+fi
 
 # zsh-autosuggestions symlink
 if [ -d /etc/skel/.oh-my-zsh ]; then
@@ -142,7 +184,16 @@ if [ -n "\$REAL_USER" ] && [ "\$REAL_USER" != "root" ] && [ -d "\$USER_HOME/.oh-
     sudo -u "\$REAL_USER" -H ln -sfn /usr/share/zsh/plugins/zsh-autosuggestions "\$CUSTOM/plugins/zsh-autosuggestions"
 fi
 
+%preun
+if [ "\$1" -eq 0 ]; then
+    sed -i '/blossomos\/guards\.zsh/d' /etc/zshrc 2>/dev/null || true
+fi
+
+%postun
+alternatives --remove editor /usr/bin/micro 2>/dev/null || true
+
 %files
+/etc/blossomos/
 /usr/share/blossomos/shellconfig/
 /usr/share/zsh/plugins/zsh-autosuggestions/
 /usr/share/fonts/maplemono-nf/
@@ -152,6 +203,7 @@ fi
 /etc/skel/.config/konsolerc
 /etc/skel/.local/share/konsole/BlossomOS.profile
 /etc/skel/.config/fastfetch/
+/etc/skel/.config/micro/
 
 %changelog
 * $(LC_TIME=C date "+%a %b %d %Y") packager - $VERSION-$RELEASE

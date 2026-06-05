@@ -1,0 +1,15 @@
+{
+    "quit":        "Beenden",
+    "save":        "Speichern",
+    "undo":        "Rückgängig",
+    "redo":        "Wiederholen",
+    "find":        "Suchen",
+    "findnext":    "Weiter",
+    "copy":        "Kopieren",
+    "cut":         "Ausschneiden",
+    "paste":       "Einfügen",
+    "selectall":   "Alles wählen",
+    "commandmode": "Befehl",
+    "togglehelp":  "Hilfe",
+    "showhints":   "Shortcuts"
+}

@@ -1,0 +1,15 @@
+{
+    "quit":        "Quit",
+    "save":        "Save",
+    "undo":        "Undo",
+    "redo":        "Redo",
+    "find":        "Find",
+    "findnext":    "Next",
+    "copy":        "Copy",
+    "cut":         "Cut",
+    "paste":       "Paste",
+    "selectall":   "Select All",
+    "commandmode": "Command",
+    "togglehelp":  "Help",
+    "showhints":   "Shortcuts"
+}
