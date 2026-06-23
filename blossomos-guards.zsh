@@ -64,7 +64,7 @@ rpm-ostree() {
         case "${_choice}" in
             rpm-ostree*)
                 sudo mount -o remount,rw /sysroot
-                sudo rpm-ostree usroverlay
+                command rpm-ostree usroverlay
                 return 0
                 ;;
             distrobox*|Distrobox*)
@@ -90,8 +90,7 @@ rpm-ostree() {
                 ;;
             unlock*)
                 if rpm-ostree status 2>/dev/null | grep -q 'Unlocked:'; then
-                    sudo mount -o remount,rw /sysroot
-                    sudo rpm-ostree "$@"
+                    command rpm-ostree "$@"
                     return 0
                 fi
                 local _passphrase
@@ -134,8 +133,7 @@ rpm-ostree() {
                 local _input
                 _input=$(gum input --placeholder "$(_blossom_t passphrase_input_placeholder)")
                 if [[ "$_input" == "$_passphrase" ]]; then
-                    sudo mount -o remount,rw /sysroot
-                    sudo rpm-ostree "$@"
+                    command rpm-ostree "$@"
                     return 0
                 else
                     gum style --foreground "#FF5555" "$(_blossom_t passphrase_wrong)"
