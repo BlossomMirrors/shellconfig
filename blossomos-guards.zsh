@@ -22,7 +22,8 @@ rpm-ostree() {
                 --foreground "#FFAA00" \
                 --padding "1 2" \
                 "$(_blossom_t usroverlay_body)"
-            command rpm-ostree "$@"
+            sudo mount -o remount,rw /sysroot
+            sudo rpm-ostree "$@"
             return
             ;;
         override)
@@ -57,11 +58,13 @@ rpm-ostree() {
             "$(_blossom_t opt_ephemeral)" \
             "$(_blossom_t opt_distrobox)" \
             "$(_blossom_t opt_flatpak)" \
+            "$(_blossom_t opt_unlock_passphrase)" \
             "$(_blossom_t cancel)")
         echo
         case "${_choice}" in
             rpm-ostree*)
-                command rpm-ostree usroverlay
+                sudo mount -o remount,rw /sysroot
+                sudo rpm-ostree usroverlay
                 return 0
                 ;;
             distrobox*|Distrobox*)
@@ -84,6 +87,59 @@ rpm-ostree() {
             brew*)
                 gum style --foreground "#AAAAFF" \
                     "brew install <package>"
+                ;;
+            unlock*)
+                if rpm-ostree status 2>/dev/null | grep -q 'Unlocked:'; then
+                    sudo mount -o remount,rw /sysroot
+                    sudo rpm-ostree "$@"
+                    return 0
+                fi
+                local _passphrase
+                local -a _w=(
+                    apple beach blade brave bread bright candy chain charm chase
+                    clear clock cloud craft dance depth dream drift drive eagle
+                    ember faith field fight flame flash float flour flower focus
+                    force forge frame fresh frost fruit grace grain grand grass
+                    green guard guide happy harsh heart heavy horse house image
+                    judge juice knife large laser learn level light logic lucky
+                    magic maple march match metal might model mouse music ocean
+                    olive panel paper patch peace pearl pilot pixel place plant
+                    polar power press price probe proud pulse reach realm rebel
+                    reply rider risky river robot rocky royal ruler saint sandy
+                    sauce scale scout shade shake shape share shark sharp shelf
+                    skill sleep slope smart smoke solar solid solve space spare
+                    spark speak speed spike spine sport spray stack stage stain
+                    stand stare stark start state steel stone storm story straw
+                    study style sugar super surge taste teach tiger toast touch
+                    tough tower trace track trade trail train trust truth vapor
+                    vault verse vigor viral visit voice water wedge wheel white
+                    world worth write yield youth zebra
+                    wald berg land mond stein gold licht nacht welt erde traum
+                    kraft regen rose tal nord see wolf held baum boot burg dorf
+                    gott horn insel jahr kind pfad raum ring sand turm feuer
+                )
+                local _suffix
+                _suffix=$(printf '%s\n' "${_w[@]}" | shuf -n 3 | paste -sd ' ')
+                _passphrase="ich weiss wirklich wirklich was ich da tue ${_suffix}"
+                echo
+                gum style \
+                    --border rounded \
+                    --border-foreground "#FF5555" \
+                    --foreground "#FFAA00" \
+                    --bold \
+                    --padding "1 2" \
+                    "$(_blossom_t passphrase_label)" \
+                    "${_passphrase}"
+                echo
+                local _input
+                _input=$(gum input --placeholder "$(_blossom_t passphrase_input_placeholder)")
+                if [[ "$_input" == "$_passphrase" ]]; then
+                    sudo mount -o remount,rw /sysroot
+                    sudo rpm-ostree "$@"
+                    return 0
+                else
+                    gum style --foreground "#FF5555" "$(_blossom_t passphrase_wrong)"
+                fi
                 ;;
         esac
         return 1

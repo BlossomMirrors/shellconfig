@@ -10,6 +10,10 @@
   "opt_ephemeral": "ephemeral container - disposable one-off Distrobox",
   "opt_flatpak": "flatpak - install desktop apps safely",
   "opt_brew": "brew (Homebrew) - Install CLI packages very easily and stable.",
+  "opt_unlock_passphrase": "unlock - run rpm-ostree anyway (passphrase required)",
+  "passphrase_label": "Your passphrase (type once to confirm):",
+  "passphrase_input_placeholder": "Enter passphrase...",
+  "passphrase_wrong": "Wrong passphrase. Aborted.",
   "terminal_warning": "Don't blindly run terminal commands from online guides!\nThey can permanently damage your system.",
   "terminal_disable": "Disable: touch ~/.config/no-terminal-warning"
 }
