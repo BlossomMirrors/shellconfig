@@ -113,9 +113,6 @@ rpm-ostree() {
                     tough tower trace track trade trail train trust truth vapor
                     vault verse vigor viral visit voice water wedge wheel white
                     world worth write yield youth zebra
-                    wald berg land mond stein gold licht nacht welt erde traum
-                    kraft regen rose tal nord see wolf held baum boot burg dorf
-                    gott horn insel jahr kind pfad raum ring sand turm feuer
                 )
                 local _suffix
                 _suffix=$(printf '%s\n' "${_w[@]}" | shuf -n 3 | paste -sd ' ')
