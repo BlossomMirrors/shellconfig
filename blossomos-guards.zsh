@@ -22,8 +22,7 @@ rpm-ostree() {
                 --foreground "#FFAA00" \
                 --padding "1 2" \
                 "$(_blossom_t usroverlay_body)"
-            sudo mount -o remount,rw /sysroot
-            sudo rpm-ostree "$@"
+            command rpm-ostree "$@"
             return
             ;;
         override)
@@ -63,7 +62,6 @@ rpm-ostree() {
         echo
         case "${_choice}" in
             rpm-ostree*)
-                sudo mount -o remount,rw /sysroot
                 command rpm-ostree usroverlay
                 return 0
                 ;;
@@ -89,8 +87,7 @@ rpm-ostree() {
                     "brew install <package>"
                 ;;
             unlock*)
-                if rpm-ostree status 2>/dev/null | grep -q 'Unlocked:'; then
-                    command rpm-ostree "$@"
+                if command rpm-ostree status 2>/dev/null | grep -q 'Unlocked:'; then
                     return 0
                 fi
                 local _passphrase
@@ -131,7 +128,7 @@ rpm-ostree() {
                 _input=$(gum input --placeholder "$(_blossom_t passphrase_input_placeholder)")
                 if [[ "$_input" == "$_passphrase" ]]; then
                     command rpm-ostree "$@"
-                    return 0
+                    return $?
                 else
                     gum style --foreground "#FF5555" "$(_blossom_t passphrase_wrong)"
                 fi
