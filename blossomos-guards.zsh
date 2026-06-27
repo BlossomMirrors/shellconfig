@@ -22,8 +22,11 @@ rpm-ostree() {
                 --foreground "#FFAA00" \
                 --padding "1 2" \
                 "$(_blossom_t usroverlay_body)"
-            command rpm-ostree "$@"
+            sudo rpm-ostree "$@"
             return
+            ;;
+        install)
+            [[ " $* " == *" --apply-live "* ]] && _blocked=1
             ;;
         override)
             case "${2:-}" in
@@ -62,7 +65,7 @@ rpm-ostree() {
         echo
         case "${_choice}" in
             rpm-ostree*)
-                command rpm-ostree usroverlay
+                sudo rpm-ostree usroverlay
                 return 0
                 ;;
             distrobox*|Distrobox*)
@@ -127,7 +130,7 @@ rpm-ostree() {
                 local _input
                 _input=$(gum input --placeholder "$(_blossom_t passphrase_input_placeholder)")
                 if [[ "$_input" == "$_passphrase" ]]; then
-                    command rpm-ostree "$@"
+                    sudo rpm-ostree "$@"
                     return $?
                 else
                     gum style --foreground "#FF5555" "$(_blossom_t passphrase_wrong)"
